@@ -4,7 +4,7 @@ import { Send, Sparkles, Bot, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { chatWithAssistant } from "@/server/assistant";
+import { chatWithAssistant, chatWithAssistantAuthed } from "@/server/assistant";
 import { toast } from "sonner";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
@@ -54,7 +54,8 @@ function AssistantPage() {
     setInput("");
     setStreaming(true);
     try {
-      const result = await chatWithAssistant({ data: { messages: next } });
+      const fn = user ? chatWithAssistantAuthed : chatWithAssistant;
+      const result = await fn({ data: { messages: next } });
       setMessages([...next, { role: "assistant", content: result.reply }]);
     } catch (e: any) {
       toast.error(e.message ?? "Assistant unavailable");
