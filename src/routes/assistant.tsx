@@ -54,9 +54,14 @@ function AssistantPage() {
     setInput("");
     setStreaming(true);
     try {
-      const fn = user ? chatWithAssistantAuthed : chatWithAssistant;
-      const result = await fn({ data: { messages: next } });
+      const result = await chatWithAssistant({ data: { messages: next } });
       setMessages([...next, { role: "assistant", content: result.reply }]);
+      if (user) {
+        supabase.from("chat_messages").insert([
+          { user_id: user.id, role: "user", content: userMsg.content },
+          { user_id: user.id, role: "assistant", content: result.reply },
+        ]).then(() => {});
+      }
     } catch (e: any) {
       toast.error(e.message ?? "Assistant unavailable");
     } finally {
