@@ -4,7 +4,7 @@ import { Send, Sparkles, Bot, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { chatWithAssistant, chatWithAssistantAuthed } from "@/server/assistant";
+import { chatWithAssistant } from "@/server/assistant";
 import { toast } from "sonner";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
