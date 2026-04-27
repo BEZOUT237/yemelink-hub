@@ -51,29 +51,22 @@ export const chatWithAssistant = createServerFn({ method: "POST" })
     const json: any = await res.json();
     const reply = json?.choices?.[0]?.message?.content ?? "Sorry, I couldn't generate a reply.";
 
-    // Persist if authenticated (best-effort, ignored on failure)
-    try {
-      const { getWebRequest } = await import("@tanstack/react-start/server");
-      const req = getWebRequest();
-      const authHeader = req?.headers.get("authorization");
-      if (authHeader) {
-        const { createClient } = await import("@supabase/supabase-js");
-        const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
-          global: { headers: { Authorization: authHeader } },
-        });
-        const { data: u } = await sb.auth.getUser();
-        if (u?.user) {
-          const last = data.messages[data.messages.length - 1];
-          await sb.from("chat_messages").insert([
-            { user_id: u.user.id, role: "user", content: last.content },
-            { user_id: u.user.id, role: "assistant", content: reply },
-          ]);
-        }
-      }
-    } catch {}
-
     return { reply };
   });
 
-// re-export to satisfy unused import lint when middleware not used
-export { requireSupabaseAuth };
+// Authenticated variant that persists chat history
+export const chatWithAssistantAuthed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: ChatInput) => input)
+  .handler(async ({ data, context }) => {
+    const result = await chatWithAssistant({ data });
+    const { supabase: sb, userId } = context as any;
+    const last = data.messages[data.messages.length - 1];
+    try {
+      await sb.from("chat_messages").insert([
+        { user_id: userId, role: "user", content: last.content },
+        { user_id: userId, role: "assistant", content: result.reply },
+      ]);
+    } catch {}
+    return result;
+  });

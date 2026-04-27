@@ -26,7 +26,7 @@ function ProfilePage() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle().then(({ data }) => {
+    supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle().then(({ data }) => {
       if (data) {
         setDisplayName((data as any).display_name ?? "");
         setBio((data as any).bio ?? "");
@@ -39,8 +39,8 @@ function ProfilePage() {
   const save = async () => {
     setSaving(true);
     const { error } = await supabase.from("profiles").upsert({
-      id: user.id, display_name: displayName, bio,
-    });
+      user_id: user.id, display_name: displayName, bio,
+    }, { onConflict: "user_id" });
     setSaving(false);
     if (error) toast.error(error.message); else toast.success("Profile updated.");
   };
