@@ -1,0 +1,97 @@
+// YEMELINK brand constants — single source of truth
+export const BRAND = {
+  name: "YEMELINK",
+  tagline: "Online Products & Services",
+  taglineFr: "Produits et services en ligne",
+  description:
+    "YEMELINK is a tech & digital media company helping businesses and entrepreneurs transform their digital presence.",
+  email: "yemelink@gmail.com",
+  whatsapp: "+905057404314",
+  whatsappLink: "https://wa.me/905057404314",
+  founder: {
+    name: "Stéphane Yemeli",
+    role: "Founder & CEO",
+    bio: "I'm Stéphane Yemeli, founder of YEMELINK. With a passion for technology and digital innovation, I started YEMELINK to help businesses and entrepreneurs transform their online presence. With over 2 years of hands-on experience in web development, mobile applications, and digital marketing, my mission is to make professional digital services accessible to everyone.",
+  },
+  stats: {
+    years: "2+",
+    projects: 16,
+    clients: 16,
+    services: 6,
+  },
+  socials: [
+    { name: "YouTube", url: "https://www.youtube.com/@YEMELINK2000", icon: "youtube" },
+    { name: "Instagram", url: "https://www.instagram.com/yemelink2000", icon: "instagram" },
+    { name: "TikTok", url: "https://www.tiktok.com/@yemelink", icon: "music" },
+    { name: "Blog", url: "https://yemelink.blogspot.com", icon: "book-open" },
+    { name: "LinkedIn", url: "https://www.linkedin.com/company/105687625", icon: "linkedin" },
+  ],
+  links: [
+    { label: "arkigai-group.com", url: "https://arkigai-group.com" },
+    { label: "linktr.ee/YEMELINK", url: "https://linktr.ee/YEMELINK" },
+  ],
+} as const;
+
+export const SERVICES = [
+  {
+    slug: "web-development",
+    title: "Web Development",
+    titleFr: "Développement Web Full Stack",
+    short: "Sites, platforms, SaaS solutions",
+    description:
+      "Custom websites, web platforms and SaaS solutions built with modern stacks. From landing pages to complex dashboards.",
+    features: ["Custom website design & development", "E-commerce platforms", "SaaS applications", "Performance & SEO"],
+    icon: "globe",
+    color: "from-cyan-500 to-blue-600",
+  },
+  {
+    slug: "mobile-apps",
+    title: "Mobile Apps",
+    titleFr: "Applications Mobiles Android",
+    short: "High-performance Android apps",
+    description: "Native and cross-platform mobile applications with stunning UI and bulletproof performance.",
+    features: ["Native Android development", "Cross-platform solutions", "UI/UX design for mobile", "Push notifications"],
+    icon: "smartphone",
+    color: "from-fuchsia-500 to-pink-600",
+  },
+  {
+    slug: "graphic-design",
+    title: "Graphic Design",
+    titleFr: "Design Graphique",
+    short: "Logos, UI/UX, brand identity",
+    description: "Visual identities that elevate brands. Logos, UI/UX systems, and social-ready creatives.",
+    features: ["Logo design & branding", "UI/UX design", "Social media graphics", "Brand guidelines"],
+    icon: "palette",
+    color: "from-orange-500 to-red-600",
+  },
+  {
+    slug: "content-creation",
+    title: "Content Creation",
+    titleFr: "Création de Contenu",
+    short: "Engaging texts, visuals & videos",
+    description: "Content that converts: articles, video production, and social-ready visuals.",
+    features: ["Blog writing & articles", "Video production", "Social media content", "Photography"],
+    icon: "pen-tool",
+    color: "from-emerald-500 to-teal-600",
+  },
+  {
+    slug: "digital-marketing",
+    title: "Digital Marketing",
+    titleFr: "Marketing Digital & Réseaux Sociaux",
+    short: "Growth strategies & social media",
+    description: "Data-driven growth: SEO, paid ads, and social strategies that scale.",
+    features: ["Social media management", "SEO optimization", "Paid advertising (Google, Meta)", "Email marketing"],
+    icon: "megaphone",
+    color: "from-amber-500 to-orange-600",
+  },
+  {
+    slug: "copywriting",
+    title: "Copywriting",
+    titleFr: "Copywriting Persuasif",
+    short: "Words that sell and inspire",
+    description: "Persuasive copy for websites, sales pages, and ads — written to convert.",
+    features: ["Website copy", "Sales pages & landing pages", "Ad copy", "Email sequences"],
+    icon: "file-text",
+    color: "from-violet-500 to-purple-600",
+  },
+] as const;
