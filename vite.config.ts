@@ -6,22 +6,4 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-export default defineConfig({
-  cloudflare: false,
-  tanstackStart: {
-    spa: {
-      enabled: true,
-      prerender: {
-        enabled: true,
-        outputPath: "/index.html",
-        crawlLinks: true,
-      },
-    },
-    prerender: {
-      enabled: true,
-      autoSubfolderIndex: true,
-      crawlLinks: true,
-      failOnError: false,
-    },
-  },
-});
+export default defineConfig();
