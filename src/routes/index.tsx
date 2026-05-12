@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Play, Sparkles, Zap, Globe, Smartphone, Palette, PenTool, Megaphone, FileText } from "lucide-react";
+import { ArrowRight, Play, Sparkles, Zap, Globe, Smartphone, Palette, PenTool, Megaphone, FileText, MapPin } from "lucide-react";
 import { BRAND, SERVICES } from "@/lib/brand";
 import { Button } from "@/components/ui/button";
 import { ConnectWithUs } from "@/components/ConnectWithUs";
+import { Globe3D } from "@/components/Globe3D";
 import logoImg from "@/assets/yemelink-logo.png";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -124,6 +125,32 @@ function Home() {
               </Link>
             );
           })}
+        </div>
+      </section>
+
+      {/* Global reach — 3D Globe */}
+      <section className="mx-auto max-w-7xl px-4 py-20 md:py-28">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="animate-fade-up order-2 lg:order-1">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-xs font-medium mb-6">
+              <MapPin className="size-3.5 text-primary" />
+              <span>Worldwide</span>
+            </div>
+            <h2 className="font-display text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.05]">
+              We help clients <span className="text-gradient">all around the world</span>
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+              Wherever you are — from Yaoundé to New York, Paris to Tokyo — YEMELINK delivers world-class digital products without borders. Time zones don't stop great work.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {["Cameroon", "Turkey", "France", "USA", "UK", "UAE", "Japan", "Brazil", "Singapore"].map((c) => (
+                <span key={c} className="px-3 py-1.5 rounded-full glass text-xs font-medium">{c}</span>
+              ))}
+            </div>
+          </div>
+          <div className="order-1 lg:order-2 animate-scale-in">
+            <Globe3D />
+          </div>
         </div>
       </section>
 

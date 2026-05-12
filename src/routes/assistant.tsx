@@ -73,9 +73,10 @@ function AssistantPage() {
     <div className="mx-auto max-w-4xl px-4 py-8 md:py-12 h-[calc(100vh-100px)] flex flex-col">
       <div className="text-center mb-6 animate-fade-up">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-xs font-medium mb-3">
-          <Sparkles className="size-3.5 text-primary" /> Powered by Lovable AI
+          <Sparkles className="size-3.5 text-primary" /> YEMELINK Intelligence
         </div>
         <h1 className="font-display text-3xl md:text-4xl font-bold">YEMELINK <span className="text-gradient">Assistant</span></h1>
+        <p className="text-sm text-muted-foreground mt-2">Your 24/7 expert on services, pricing, and tech advice.</p>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto glass-strong rounded-3xl p-5 mb-4 space-y-4">
