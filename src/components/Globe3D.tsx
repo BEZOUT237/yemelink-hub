@@ -44,13 +44,13 @@ export function Globe3D() {
         { location: [55.755, 37.617], size: 0.05 },  // Moscow
         { location: [-26.2, 28.043], size: 0.05 },   // Johannesburg
       ],
-      onRender: (state) => {
+      onRender: (state: Record<string, any>) => {
         if (!pointerInteracting.current) phi += 0.004;
         state.phi = phi + pointerInteractionMovement.current;
         state.width = width * 2;
         state.height = width * 2;
       },
-    });
+    } as any);
 
     setTimeout(() => canvasRef.current && (canvasRef.current.style.opacity = "1"), 0);
     return () => {
