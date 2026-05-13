@@ -4,8 +4,20 @@ import { Send, Sparkles, Bot, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { chatWithAssistant } from "@/server/assistant";
 import { toast } from "sonner";
+
+async function chatWithAssistant(payload: { data: { messages: Array<{ role: "user" | "assistant"; content: string }> } }) {
+  const res = await fetch("/api/assistant", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload.data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Request failed" }));
+    throw new Error(err.error ?? "Request failed");
+  }
+  return res.json() as Promise<{ reply: string }>;
+}
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string };
 
