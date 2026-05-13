@@ -5,10 +5,10 @@ export function Globe3D() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pointerInteracting = useRef<number | null>(null);
   const pointerInteractionMovement = useRef(0);
+  const phiRef = useRef(0);
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    let phi = 0;
     let width = 0;
     const onResize = () => canvasRef.current && (width = canvasRef.current.offsetWidth);
     window.addEventListener("resize", onResize);
@@ -19,34 +19,37 @@ export function Globe3D() {
       width: width * 2,
       height: width * 2,
       phi: 0,
-      theta: 0.25,
+      theta: 0.3,
       dark: 1,
-      diffuse: 1.4,
-      mapSamples: 16000,
-      mapBrightness: 7,
-      baseColor: [0.15, 0.25, 0.4],
-      markerColor: [0.4, 0.95, 1],
-      glowColor: [0.2, 0.7, 1],
+      diffuse: 1.2,
+      mapSamples: 22000,
+      mapBrightness: 9,
+      baseColor: [0.12, 0.22, 0.45],
+      markerColor: [0.45, 0.95, 1],
+      glowColor: [0.25, 0.75, 1.1],
       markers: [
-        { location: [3.848, 11.502], size: 0.12 },   // Yaoundé, Cameroon
-        { location: [41.015, 28.979], size: 0.12 },  // Istanbul, Turkey
-        { location: [40.712, -74.006], size: 0.07 }, // New York
-        { location: [48.856, 2.352], size: 0.07 },   // Paris
-        { location: [51.507, -0.127], size: 0.07 },  // London
-        { location: [-23.55, -46.633], size: 0.06 }, // São Paulo
-        { location: [35.689, 139.692], size: 0.06 }, // Tokyo
-        { location: [1.352, 103.819], size: 0.06 },  // Singapore
-        { location: [-33.868, 151.209], size: 0.06 },// Sydney
-        { location: [25.204, 55.270], size: 0.06 },  // Dubai
-        { location: [-1.292, 36.821], size: 0.06 },  // Nairobi
-        { location: [19.076, 72.877], size: 0.06 },  // Mumbai
-        { location: [37.774, -122.419], size: 0.06 },// SF
-        { location: [55.755, 37.617], size: 0.05 },  // Moscow
-        { location: [-26.2, 28.043], size: 0.05 },   // Johannesburg
+        { location: [3.848, 11.502], size: 0.14 },
+        { location: [41.015, 28.979], size: 0.12 },
+        { location: [40.712, -74.006], size: 0.08 },
+        { location: [48.856, 2.352], size: 0.08 },
+        { location: [51.507, -0.127], size: 0.08 },
+        { location: [-23.55, -46.633], size: 0.07 },
+        { location: [35.689, 139.692], size: 0.07 },
+        { location: [1.352, 103.819], size: 0.07 },
+        { location: [-33.868, 151.209], size: 0.07 },
+        { location: [25.204, 55.270], size: 0.07 },
+        { location: [-1.292, 36.821], size: 0.07 },
+        { location: [19.076, 72.877], size: 0.07 },
+        { location: [37.774, -122.419], size: 0.07 },
+        { location: [55.755, 37.617], size: 0.06 },
+        { location: [-26.2, 28.043], size: 0.06 },
+        { location: [19.432, -99.133], size: 0.06 },
+        { location: [39.904, 116.407], size: 0.07 },
+        { location: [13.736, 100.523], size: 0.06 },
       ],
       onRender: (state: Record<string, any>) => {
-        if (!pointerInteracting.current) phi += 0.004;
-        state.phi = phi + pointerInteractionMovement.current;
+        if (!pointerInteracting.current) phiRef.current += 0.0035;
+        state.phi = phiRef.current + pointerInteractionMovement.current;
         state.width = width * 2;
         state.height = width * 2;
       },
@@ -60,8 +63,21 @@ export function Globe3D() {
   }, []);
 
   return (
-    <div className="relative w-full max-w-[640px] mx-auto aspect-square">
-      <div className="absolute inset-0 bg-primary/30 blur-[120px] animate-pulse-glow" />
+    <div className="relative w-full max-w-[680px] mx-auto aspect-square">
+      {/* Outer atmospheric glow */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-cyan-400/20 to-blue-600/30 blur-[140px] animate-pulse-glow" />
+      <div className="absolute inset-[10%] rounded-full bg-cyan-300/10 blur-[80px]" />
+
+      {/* Orbit rings */}
+      <div
+        className="absolute inset-[2%] rounded-full border border-primary/20"
+        style={{ animation: "spin 40s linear infinite" }}
+      />
+      <div
+        className="absolute inset-[6%] rounded-full border border-cyan-400/10"
+        style={{ animation: "spin 60s linear infinite reverse" }}
+      />
+
       <canvas
         ref={canvasRef}
         onPointerDown={(e) => {
@@ -94,7 +110,8 @@ export function Globe3D() {
           cursor: "grab",
           contain: "layout paint size",
           opacity: 0,
-          transition: "opacity 1s ease",
+          transition: "opacity 1.2s ease",
+          filter: "drop-shadow(0 0 60px rgba(56, 189, 248, 0.35))",
         }}
       />
     </div>
