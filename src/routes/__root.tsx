@@ -29,7 +29,7 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-hidden">
         <div className="fixed inset-0 -z-10 grid-bg opacity-40" aria-hidden />
         <div className="fixed inset-0 -z-10 bg-mesh" aria-hidden />
         <Header />
