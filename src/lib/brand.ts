@@ -27,7 +27,7 @@ export const BRAND = {
     { name: "LinkedIn", url: "https://www.linkedin.com/company/105687625", icon: "linkedin" },
   ],
   links: [
-    { label: "arkigai-group.com", url: "https://arkigai-group.com" },
+    { label: "yemelink.vercel.app", url: "https://yemelink.vercel.app" },
     { label: "linktr.ee/YEMELINK", url: "https://linktr.ee/YEMELINK" },
   ],
 } as const;

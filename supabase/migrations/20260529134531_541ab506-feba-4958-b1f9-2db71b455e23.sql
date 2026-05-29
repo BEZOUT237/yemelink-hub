@@ -1,0 +1,1 @@
+UPDATE public.projects SET title='CS Eng Portfolio (Stephane YEMELI)', url='https://stephane-yemeli.vercel.app', image_url='/projects/stephane-yemeli.png', description='Personal portfolio of Stephane Yemeli — Computer Engineering student, founder of YEMELINK, AI & SaaS builder.' WHERE id='2f7cd2f8-9ec0-4310-96a3-380f89da8bf8';
