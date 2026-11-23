@@ -1,8 +1,16 @@
-import { Outlet, createRootRoute, Link } from "@tanstack/react-router";
+import { lazy, Suspense } from "react";
+import { Outlet, createRootRoute, Link, useLocation } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SmoothScrollProvider } from "@/components/motion/SmoothScrollProvider";
+import { CustomCursor } from "@/components/motion/CustomCursor";
+import { IntroLoader } from "@/components/motion/IntroLoader";
+import { useMotionPrefs } from "@/hooks/useMotionPrefs";
+
+const NetworkBackground = lazy(() => import("@/components/three/NetworkBackground"));
 
 function NotFoundComponent() {
   return (
@@ -27,18 +35,38 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
+  const location = useLocation();
+  const { reducedMotion } = useMotionPrefs();
+
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-background overflow-x-hidden">
-        <div className="fixed inset-0 -z-10 grid-bg opacity-40" aria-hidden />
-        <div className="fixed inset-0 -z-10 bg-mesh" aria-hidden />
-        <Header />
-        <main className="pt-24">
-          <Outlet />
-        </main>
-        <Footer />
-        <Toaster />
-      </div>
+      <SmoothScrollProvider>
+        <div className="min-h-screen bg-background overflow-x-hidden">
+          <IntroLoader />
+          <CustomCursor />
+          <div className="fixed inset-0 -z-10 grid-bg opacity-40" aria-hidden />
+          <div className="fixed inset-0 -z-10 bg-mesh" aria-hidden />
+          <Suspense fallback={null}>
+            <NetworkBackground />
+          </Suspense>
+          <Header />
+          <main className="pt-24">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={location.pathname}
+                initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reducedMotion ? undefined : { opacity: 0, y: -8 }}
+                transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
+          </main>
+          <Footer />
+          <Toaster />
+        </div>
+      </SmoothScrollProvider>
     </AuthProvider>
   );
 }

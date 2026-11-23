@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, type MouseEvent } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { ScrambleText } from "@/components/motion/KineticText";
+import { Magnetic } from "@/components/motion/Magnetic";
+import { useMotionPrefs } from "@/hooks/useMotionPrefs";
 
 const NAV = [
   { to: "/", label: "Home" },
@@ -20,6 +23,8 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const { user, isAdmin } = useAuth();
+  const { reducedMotion, isCoarsePointer } = useMotionPrefs();
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -29,6 +34,20 @@ export function Header() {
   }, []);
 
   useEffect(() => setOpen(false), [location.pathname]);
+
+  const onBarMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (reducedMotion || isCoarsePointer || !barRef.current) return;
+    const rect = barRef.current.getBoundingClientRect();
+    const px = ((e.clientX - rect.left) / rect.width) * 100;
+    const py = ((e.clientY - rect.top) / rect.height) * 100;
+    barRef.current.style.setProperty("--mx", `${px.toFixed(1)}%`);
+    barRef.current.style.setProperty("--my", `${py.toFixed(1)}%`);
+    barRef.current.style.setProperty("--glow-opacity", "1");
+  };
+
+  const onBarLeave = () => {
+    barRef.current?.style.setProperty("--glow-opacity", "0");
+  };
 
   return (
     <header
@@ -42,8 +61,11 @@ export function Header() {
         }`}
       >
         <div
-          className={`flex items-center justify-between rounded-2xl px-4 py-2.5 transition-all duration-500 ${
-            scrolled ? "glass-strong shadow-deep" : "glass"
+          ref={barRef}
+          onMouseMove={onBarMove}
+          onMouseLeave={onBarLeave}
+          className={`liquid-glass-surface flex items-center justify-between rounded-2xl px-4 py-2.5 transition-all duration-500 ${
+            scrolled ? "shadow-deep border-primary/20" : ""
           }`}
         >
           <Logo />
@@ -58,11 +80,11 @@ export function Header() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`relative px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  className={`link-underline relative px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {item.label}
+                  <ScrambleText text={item.label} />
                   {isActive && (
                     <span className="absolute inset-x-3 -bottom-0.5 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
                   )}
@@ -88,12 +110,14 @@ export function Header() {
                 <Button variant="ghost" size="sm">Sign in</Button>
               </Link>
             )}
-            <Link to="/contact">
-              <Button size="sm" variant="hero" className="hidden sm:inline-flex">
-                <Sparkles className="size-4" />
-                Get a Quote
-              </Button>
-            </Link>
+            <Magnetic className="hidden sm:inline-block">
+              <Link to="/contact">
+                <Button size="sm" variant="hero">
+                  <Sparkles className="size-4" />
+                  <ScrambleText text="Get a Quote" />
+                </Button>
+              </Link>
+            </Magnetic>
             <button
               className="lg:hidden p-2 rounded-lg hover:bg-white/5 text-foreground"
               onClick={() => setOpen(!open)}

@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Mail, Phone, ExternalLink, Youtube, Instagram, Linkedin, BookOpen, Music2 } from "lucide-react";
 import { BRAND, SERVICES } from "@/lib/brand";
 import { Logo } from "./Logo";
+import { Magnetic } from "@/components/motion/Magnetic";
+import { ScrambleText, ScrollSkewHeading } from "@/components/motion/KineticText";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   youtube: Youtube,
@@ -18,18 +20,22 @@ export function Footer() {
 
       {/* CTA */}
       <div className="mx-auto max-w-7xl px-4 py-20 text-center">
-        <h2 className="text-3xl md:text-5xl font-bold mb-4">
-          Not sure what you need?
-        </h2>
+        <ScrollSkewHeading>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            Not sure what you need?
+          </h2>
+        </ScrollSkewHeading>
         <p className="text-muted-foreground max-w-xl mx-auto mb-8">
           Let's discuss your project and find the perfect solution together. Free consultation included!
         </p>
-        <Link
-          to="/contact"
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold shadow-elegant hover:shadow-glow transition-all hover:-translate-y-0.5"
-        >
-          Book Free Consultation →
-        </Link>
+        <Magnetic>
+          <Link
+            to="/contact"
+            className="liquid-btn inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold shadow-elegant hover:shadow-glow transition-all hover:-translate-y-0.5"
+          >
+            <ScrambleText text="Book Free Consultation →" />
+          </Link>
+        </Magnetic>
       </div>
 
       <div className="border-t border-border bg-card/30">
@@ -61,12 +67,12 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/" className="hover:text-primary">Home</Link></li>
-              <li><Link to="/services" className="hover:text-primary">Services</Link></li>
-              <li><Link to="/portfolio" className="hover:text-primary">Portfolio</Link></li>
-              <li><Link to="/community" className="hover:text-primary">Community</Link></li>
-              <li><Link to="/blog" className="hover:text-primary">Blog</Link></li>
-              <li><Link to="/contact" className="hover:text-primary">Contact</Link></li>
+              <li><Link to="/" className="link-underline hover:text-primary">Home</Link></li>
+              <li><Link to="/services" className="link-underline hover:text-primary">Services</Link></li>
+              <li><Link to="/portfolio" className="link-underline hover:text-primary">Portfolio</Link></li>
+              <li><Link to="/community" className="link-underline hover:text-primary">Community</Link></li>
+              <li><Link to="/blog" className="link-underline hover:text-primary">Blog</Link></li>
+              <li><Link to="/contact" className="link-underline hover:text-primary">Contact</Link></li>
             </ul>
           </div>
 
