@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Float, Html, Lightformer, Line } from "@react-three/drei";
+import { Environment, Float, Lightformer, Line } from "@react-three/drei";
 import * as THREE from "three";
 import { Globe, Smartphone, Palette, Megaphone } from "lucide-react";
 import { useMotionPrefs } from "@/hooks/useMotionPrefs";
@@ -107,31 +107,21 @@ function PillarNode({
 
   return (
     <Float speed={1.6 + index * 0.15} floatIntensity={0.35} rotationIntensity={0.1}>
-      <group
-        ref={groupRef}
-        position={pillar.pos}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          document.body.style.cursor = "pointer";
-          onHover(index);
-        }}
-        onPointerOut={() => {
-          document.body.style.cursor = "";
-          onHover(null);
-        }}
-      >
-        <PillarShape id={pillar.id} active={active} />
-        <Html position={[0, -0.92, 0]} center distanceFactor={8} style={{ pointerEvents: "none" }}>
-          <div
-            className={`px-3 py-1 rounded-full text-xs font-display font-semibold whitespace-nowrap transition-all duration-300 ${
-              active
-                ? "bg-primary text-primary-foreground shadow-elegant scale-110"
-                : "glass text-foreground/90"
-            }`}
-          >
-            {pillar.label}
-          </div>
-        </Html>
+      <group position={pillar.pos}>
+        <group
+          ref={groupRef}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            document.body.style.cursor = "pointer";
+            onHover(index);
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = "";
+            onHover(null);
+          }}
+        >
+          <PillarShape id={pillar.id} active={active} />
+        </group>
       </group>
     </Float>
   );
@@ -232,9 +222,11 @@ export default function Ecosystem3D({
 }) {
   const { reducedMotion, isMobile } = useMotionPrefs();
   const wrapRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const el = wrapRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
@@ -245,7 +237,7 @@ export default function Ecosystem3D({
     return () => obs.disconnect();
   }, []);
 
-  if (reducedMotion || isMobile) {
+  if (!mounted || reducedMotion || isMobile) {
     return (
       <div className="liquid-glass-surface rounded-3xl mb-10">
         <Ecosystem2DFallback activeIndex={activeIndex} onHover={onHover} />
@@ -266,7 +258,7 @@ export default function Ecosystem3D({
         <Canvas
           dpr={[1, 2]}
           frameloop={inView ? "always" : "demand"}
-          camera={{ position: [0, 0.25, 5.9], fov: 40 }}
+          camera={{ position: [0, -0.1, 5.9], fov: 40 }}
           gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
         >
           <ambientLight intensity={0.45} />
@@ -288,6 +280,33 @@ export default function Ecosystem3D({
           ))}
         </Canvas>
       </SceneErrorBoundary>
+      <div className="absolute bottom-4 inset-x-4 z-10 flex items-center justify-center gap-2.5 flex-wrap">
+        {ECOSYSTEM_PILLARS.map((p, idx) => {
+          const Icon = p.icon;
+          const isActive = activeIndex === idx;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              onMouseEnter={() => onHover(idx)}
+              onMouseLeave={() => onHover(null)}
+              onFocus={() => onHover(idx)}
+              onBlur={() => onHover(null)}
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-display font-semibold transition-all duration-300 border ${
+                isActive
+                  ? "bg-primary text-primary-foreground border-primary shadow-elegant scale-105"
+                  : "glass border-glass-border text-foreground/90 hover:border-primary/50"
+              }`}
+            >
+              <Icon className="size-3.5" />
+              <span>{p.label}</span>
+              <span className={`text-[10px] ${isActive ? "text-primary-foreground/80" : "text-primary/80"}`}>
+                · {p.subtitle}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

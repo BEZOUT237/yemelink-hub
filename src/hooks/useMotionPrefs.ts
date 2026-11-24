@@ -7,15 +7,10 @@ export interface MotionPrefs {
 }
 
 export function useMotionPrefs(): MotionPrefs {
-  const [prefs, setPrefs] = useState<MotionPrefs>(() => {
-    if (typeof window === "undefined") {
-      return { reducedMotion: false, isCoarsePointer: false, isMobile: false };
-    }
-    return {
-      reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-      isCoarsePointer: window.matchMedia("(pointer: coarse)").matches,
-      isMobile: window.innerWidth < 768,
-    };
+  const [prefs, setPrefs] = useState<MotionPrefs>({
+    reducedMotion: false,
+    isCoarsePointer: false,
+    isMobile: false,
   });
 
   useEffect(() => {

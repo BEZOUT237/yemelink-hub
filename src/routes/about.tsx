@@ -4,6 +4,15 @@ import { BRAND } from "@/lib/brand";
 import { Button } from "@/components/ui/button";
 import portrait from "@/assets/stephane-portrait.png";
 import thinking from "@/assets/stephane-thinking.png";
+import { GlassCard } from "@/components/motion/GlassCard";
+import { Magnetic } from "@/components/motion/Magnetic";
+import {
+  AnimatedCounter,
+  ScrambleText,
+  ScrollReveal,
+  ScrollSkewHeading,
+  SplitReveal,
+} from "@/components/motion/KineticText";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -32,9 +41,12 @@ function AboutPage() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-xs font-medium mb-6">
             <span className="text-primary">●</span> Meet the founder
           </div>
-          <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-6">
-            Hi, I'm <span className="text-gradient">{BRAND.founder.name}</span>
-          </h1>
+          <ScrollSkewHeading>
+            <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-6">
+              <SplitReveal text="Hi, I'm" mode="words" immediate />{" "}
+              <SplitReveal text={BRAND.founder.name} mode="words" immediate delay={0.14} itemClassName="text-gradient" />
+            </h1>
+          </ScrollSkewHeading>
           <p className="text-lg text-muted-foreground leading-relaxed mb-6">
             {BRAND.founder.bio}
           </p>
@@ -42,44 +54,54 @@ function AboutPage() {
             What started as a passion project has grown into a full tech & digital media company serving clients across multiple continents. Every project we touch is an opportunity to push the envelope on craft and impact.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link to="/contact"><Button variant="hero" size="lg">Work with me</Button></Link>
-            <a href={BRAND.whatsappLink} target="_blank" rel="noopener noreferrer">
-              <Button variant="glass" size="lg">WhatsApp</Button>
-            </a>
+            <Magnetic>
+              <Link to="/contact"><Button variant="hero" size="lg"><ScrambleText text="Work with me" /></Button></Link>
+            </Magnetic>
+            <Magnetic>
+              <a href={BRAND.whatsappLink} target="_blank" rel="noopener noreferrer">
+                <Button variant="glass" size="lg">WhatsApp</Button>
+              </a>
+            </Magnetic>
           </div>
         </div>
-        <div className="relative animate-scale-in">
+        <ScrollReveal clip className="relative">
           <div className="absolute -inset-4 bg-primary/30 blur-[80px]" />
           <div className="relative grid grid-cols-2 gap-4">
-            <img src={portrait} alt="Stéphane Yemeli" className="rounded-3xl shadow-deep aspect-[3/4] object-cover" />
-            <img src={thinking} alt="Stéphane Yemeli" className="rounded-3xl shadow-deep aspect-[3/4] object-cover mt-12 grayscale" />
+            <img src={portrait} alt="Stéphane Yemeli" className="rounded-3xl shadow-deep aspect-[3/4] object-cover transition-transform duration-700 hover:scale-[1.03]" />
+            <img src={thinking} alt="Stéphane Yemeli" className="rounded-3xl shadow-deep aspect-[3/4] object-cover mt-12 grayscale hover:grayscale-0 transition-all duration-700 hover:scale-[1.03]" />
           </div>
-        </div>
+        </ScrollReveal>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-24">
         {VALUES.map((v, i) => (
-          <div
-            key={v.title}
-            className="glass-strong rounded-3xl p-6 hover:-translate-y-1 transition-all animate-fade-up"
-            style={{ animationDelay: `${i * 80}ms` }}
-          >
-            <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-primary to-primary-glow mb-4 shadow-glow">
-              <v.icon className="size-5 text-primary-foreground" />
-            </div>
-            <h3 className="text-lg font-bold mb-2">{v.title}</h3>
-            <p className="text-sm text-muted-foreground">{v.text}</p>
-          </div>
+          <ScrollReveal key={v.title} delay={i * 0.07}>
+            <GlassCard className="h-full rounded-3xl p-6">
+              <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-primary to-primary-glow mb-4 shadow-glow">
+                <v.icon className="size-5 text-primary-foreground" />
+              </div>
+              <h3 className="text-lg font-bold mb-2">{v.title}</h3>
+              <p className="text-sm text-muted-foreground">{v.text}</p>
+            </GlassCard>
+          </ScrollReveal>
         ))}
       </div>
 
-      <div className="glass-strong rounded-3xl p-8 md:p-16 text-center bg-mesh">
-        <h2 className="text-3xl md:text-5xl font-bold mb-4">{BRAND.stats.years} years • {BRAND.stats.projects}+ projects</h2>
-        <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-          Trusted by entrepreneurs, startups, and established brands worldwide.
-        </p>
-        <Link to="/portfolio"><Button variant="hero" size="lg">See our work</Button></Link>
-      </div>
+      <ScrollReveal>
+        <GlassCard tilt={false} className="rounded-3xl p-8 md:p-16 text-center bg-mesh">
+          <ScrollSkewHeading>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              <AnimatedCounter value={BRAND.stats.years} /> years • <AnimatedCounter value={`${BRAND.stats.projects}+`} /> projects
+            </h2>
+          </ScrollSkewHeading>
+          <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+            Trusted by entrepreneurs, startups, and established brands worldwide.
+          </p>
+          <Magnetic>
+            <Link to="/portfolio"><Button variant="hero" size="lg"><ScrambleText text="See our work" /></Button></Link>
+          </Magnetic>
+        </GlassCard>
+      </ScrollReveal>
     </div>
   );
 }

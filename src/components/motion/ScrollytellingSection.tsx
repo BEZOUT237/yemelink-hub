@@ -125,10 +125,12 @@ export function ScrollytellingSection() {
   const { reducedMotion, isMobile } = useMotionPrefs();
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef(0);
+  const [mounted, setMounted] = useState(false);
   const [activeStage, setActiveStage] = useState(0);
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const el = sectionRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
@@ -171,7 +173,7 @@ export function ScrollytellingSection() {
           <div className="lg:col-span-5">
             <div className="relative aspect-square max-w-[380px] mx-auto rounded-3xl glass border border-glass-border overflow-hidden flex items-center justify-center">
               <div className="absolute inset-0 bg-radial opacity-70 pointer-events-none" />
-              {reducedMotion || isMobile ? (
+              {!mounted || reducedMotion || isMobile ? (
                 <div className="relative flex flex-col items-center justify-center p-8 text-center">
                   <div className="size-24 rounded-3xl bg-gradient-to-br from-primary to-primary-glow grid place-items-center shadow-glow mb-4">
                     <current.icon className="size-10 text-primary-foreground" />

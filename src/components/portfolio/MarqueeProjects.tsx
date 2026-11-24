@@ -67,7 +67,7 @@ function InfiniteTrack({
       if (track) {
         const halfWidth = track.scrollWidth / 2;
         if (halfWidth > 0) {
-          const targetSpeed = draggingRef.current ? 0 : hoveredRef.current ? baseSpeed * 0.08 : baseSpeed;
+          const targetSpeed = draggingRef.current || hoveredRef.current ? 0 : baseSpeed;
           currentSpeed += (targetSpeed - currentSpeed) * (1 - Math.exp(-6 * dt));
           boostRef.current *= Math.exp(-5.5 * dt);
 

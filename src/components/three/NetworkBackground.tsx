@@ -123,15 +123,17 @@ function NodeNetworkMesh({ count }: { count: number }) {
 
 export default function NetworkBackground() {
   const { reducedMotion, isMobile } = useMotionPrefs();
+  const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    setMounted(true);
     const onVis = () => setVisible(!document.hidden);
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
 
-  if (reducedMotion || isMobile) return null;
+  if (!mounted || reducedMotion || isMobile) return null;
 
   return (
     <SceneErrorBoundary fallback={null}>

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Outlet, createRootRoute, Link, useLocation } from "@tanstack/react-router";
+import { Outlet, createRootRoute, HeadContent, Scripts, Link, useLocation } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -9,6 +9,7 @@ import { SmoothScrollProvider } from "@/components/motion/SmoothScrollProvider";
 import { CustomCursor } from "@/components/motion/CustomCursor";
 import { IntroLoader } from "@/components/motion/IntroLoader";
 import { useMotionPrefs } from "@/hooks/useMotionPrefs";
+import appCss from "../styles.css?url";
 
 const NetworkBackground = lazy(() => import("@/components/three/NetworkBackground"));
 
@@ -29,7 +30,46 @@ function NotFoundComponent() {
   );
 }
 
+function RootShell({ children }: { children: React.ReactNode }) {
+  if (typeof window !== "undefined" && (window as unknown as Record<string, unknown>).__YEMELINK_SPA__) {
+    return <>{children}</>;
+  }
+  return (
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
 export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "YEMELINK — Online Products & Services" },
+      { name: "description", content: "YEMELINK is a tech & digital media company helping businesses transform their digital presence. Web, mobile, design, and marketing." },
+      { name: "author", content: "YEMELINK" },
+      { property: "og:title", content: "YEMELINK — Online Products & Services" },
+      { property: "og:description", content: "Tech hub for entrepreneurs: web development, mobile apps, design, and digital marketing." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/favicon.png" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" },
+    ],
+  }),
+  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
 });

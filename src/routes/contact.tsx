@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Mail, Phone, MessageCircle, Send, CheckCircle2 } from "lucide-react";
 import { BRAND, SERVICES } from "@/lib/brand";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { GlassCard } from "@/components/motion/GlassCard";
+import { Magnetic } from "@/components/motion/Magnetic";
+import { ScrambleText, ScrollSkewHeading, SplitReveal } from "@/components/motion/KineticText";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -24,6 +28,7 @@ export const Route = createFileRoute("/contact")({
 function ContactPage() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [fieldError, setFieldError] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -33,11 +38,25 @@ function ContactPage() {
     message: "",
   });
 
-  const setField = <K extends keyof typeof form>(k: K, v: string) =>
+  const setField = <K extends keyof typeof form>(k: K, v: string) => {
+    if (fieldError) setFieldError(null);
     setForm((f) => ({ ...f, [k]: v }));
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.name.trim()) {
+      setFieldError("Please tell us your name.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      setFieldError("Please enter a valid email address.");
+      return;
+    }
+    if (form.message.trim().length < 6) {
+      setFieldError("Please share a few words about your project.");
+      return;
+    }
     setLoading(true);
     const fullMessage = [
       form.message,
@@ -68,32 +87,45 @@ function ContactPage() {
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-xs font-medium mb-6">
           <span className="text-primary">●</span> Let's talk
         </div>
-        <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-4">
-          Start your <span className="text-gradient">project</span>
-        </h1>
+        <ScrollSkewHeading>
+          <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-4">
+            <SplitReveal text="Start your" mode="words" immediate />{" "}
+            <SplitReveal text="project" mode="words" immediate delay={0.14} itemClassName="text-gradient" />
+          </h1>
+        </ScrollSkewHeading>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto">
           Tell us what you're building. Free 30-minute consultation included — no pressure.
         </p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 glass-strong rounded-3xl p-6 md:p-10 animate-fade-up">
+        <GlassCard tilt={false} className="lg:col-span-2 rounded-3xl p-6 md:p-10">
           {sent ? (
-            <div className="py-12 text-center">
-              <CheckCircle2 className="size-16 text-primary mx-auto mb-4 animate-scale-in" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="py-12 text-center"
+            >
+              <CheckCircle2 className="size-16 text-primary mx-auto mb-4" />
               <h3 className="text-2xl font-bold mb-2">You're in! 🎉</h3>
               <p className="text-muted-foreground">We've received your request and will reply within 24 hours.</p>
-            </div>
+            </motion.div>
           ) : (
-            <form onSubmit={submit} className="space-y-6">
+            <form onSubmit={submit} noValidate className="space-y-6">
+              {fieldError && (
+                <div role="alert" className="rounded-xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  {fieldError}
+                </div>
+              )}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">What should we call you? *</Label>
-                  <Input id="name" required placeholder="Your name" value={form.name} onChange={(e) => setField("name", e.target.value)} className="mt-1.5" />
+                  <Input id="name" required placeholder="Your name" value={form.name} onChange={(e) => setField("name", e.target.value)} className="mt-1.5 glass focus-visible:ring-2 focus-visible:ring-primary/70 transition-all" />
                 </div>
                 <div>
                   <Label htmlFor="email">Where can we reach you? *</Label>
-                  <Input id="email" type="email" required placeholder="you@email.com" value={form.email} onChange={(e) => setField("email", e.target.value)} className="mt-1.5" />
+                  <Input id="email" type="email" required placeholder="you@email.com" value={form.email} onChange={(e) => setField("email", e.target.value)} className="mt-1.5 glass focus-visible:ring-2 focus-visible:ring-primary/70 transition-all" />
                 </div>
               </div>
 
@@ -165,41 +197,49 @@ function ContactPage() {
                   rows={5}
                   value={form.message}
                   onChange={(e) => setField("message", e.target.value)}
-                  className="mt-1.5"
+                  className="mt-1.5 glass focus-visible:ring-2 focus-visible:ring-primary/70 transition-all"
                   placeholder="What are you building? Any inspiration, goals, or features in mind? Don't worry — there's no wrong answer."
                 />
               </div>
 
-              <Button type="submit" variant="hero" size="lg" disabled={loading} className="w-full">
-                <Send className="size-4" /> {loading ? "Sending…" : "Send my request"}
-              </Button>
+              <Magnetic className="block w-full">
+                <Button type="submit" variant="hero" size="lg" disabled={loading} className="w-full">
+                  <Send className="size-4" /> {loading ? "Sending…" : <ScrambleText text="Send my request" />}
+                </Button>
+              </Magnetic>
               <p className="text-xs text-muted-foreground text-center">We reply within 24 hours, usually much faster ⚡</p>
             </form>
           )}
-        </div>
+        </GlassCard>
 
         <div className="space-y-4 animate-fade-up delay-100">
-          <a href={BRAND.whatsappLink} target="_blank" rel="noopener noreferrer" className="block glass-strong rounded-3xl p-6 hover:-translate-y-1 hover:shadow-glow transition-all group">
-            <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 mb-3 shadow-glow">
-              <MessageCircle className="size-5 text-white" />
-            </div>
-            <h3 className="font-bold mb-1 group-hover:text-primary">WhatsApp</h3>
-            <p className="text-sm text-muted-foreground">{BRAND.whatsapp}</p>
-            <p className="text-xs text-primary mt-2">Fastest response →</p>
+          <a href={BRAND.whatsappLink} target="_blank" rel="noopener noreferrer" className="block group">
+            <GlassCard className="rounded-3xl p-6">
+              <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 mb-3 shadow-glow">
+                <MessageCircle className="size-5 text-white" />
+              </div>
+              <h3 className="font-bold mb-1 group-hover:text-primary transition-colors">WhatsApp</h3>
+              <p className="text-sm text-muted-foreground">{BRAND.whatsapp}</p>
+              <p className="text-xs text-primary mt-2">Fastest response →</p>
+            </GlassCard>
           </a>
-          <a href={`mailto:${BRAND.email}`} className="block glass-strong rounded-3xl p-6 hover:-translate-y-1 hover:shadow-elegant transition-all group">
-            <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-primary to-primary-glow mb-3 shadow-glow">
-              <Mail className="size-5 text-primary-foreground" />
-            </div>
-            <h3 className="font-bold mb-1 group-hover:text-primary">Email</h3>
-            <p className="text-sm text-muted-foreground break-all">{BRAND.email}</p>
+          <a href={`mailto:${BRAND.email}`} className="block group">
+            <GlassCard className="rounded-3xl p-6">
+              <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-primary to-primary-glow mb-3 shadow-glow">
+                <Mail className="size-5 text-primary-foreground" />
+              </div>
+              <h3 className="font-bold mb-1 group-hover:text-primary transition-colors">Email</h3>
+              <p className="text-sm text-muted-foreground break-all">{BRAND.email}</p>
+            </GlassCard>
           </a>
-          <a href={`tel:${BRAND.whatsapp}`} className="block glass-strong rounded-3xl p-6 hover:-translate-y-1 hover:shadow-elegant transition-all group">
-            <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-pink-600 mb-3 shadow-glow">
-              <Phone className="size-5 text-white" />
-            </div>
-            <h3 className="font-bold mb-1 group-hover:text-primary">Call</h3>
-            <p className="text-sm text-muted-foreground">{BRAND.whatsapp}</p>
+          <a href={`tel:${BRAND.whatsapp}`} className="block group">
+            <GlassCard className="rounded-3xl p-6">
+              <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-pink-600 mb-3 shadow-glow">
+                <Phone className="size-5 text-white" />
+              </div>
+              <h3 className="font-bold mb-1 group-hover:text-primary transition-colors">Call</h3>
+              <p className="text-sm text-muted-foreground">{BRAND.whatsapp}</p>
+            </GlassCard>
           </a>
         </div>
       </div>

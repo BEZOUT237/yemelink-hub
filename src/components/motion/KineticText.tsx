@@ -133,18 +133,27 @@ export function ScrambleText({ text, className = "" }: { text: string; className
   );
 }
 
-export function AnimatedCounter({ value, className = "" }: { value: string | number; className?: string }) {
+export function AnimatedCounter({
+  value,
+  immediate = false,
+  className = "",
+}: {
+  value: string | number;
+  immediate?: boolean;
+  className?: string;
+}) {
   const { reducedMotion } = useMotionPrefs();
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.4 });
+  const inView = useInView(ref, { once: true, amount: "some" });
   const raw = String(value);
   const match = raw.match(/^(\d+)(.*)$/);
+  const hasNumber = Boolean(match);
   const target = match ? parseInt(match[1] ?? "0", 10) : 0;
   const suffix = match ? (match[2] ?? "") : "";
   const [shown, setShown] = useState(reducedMotion ? raw : `0${suffix}`);
 
   useEffect(() => {
-    if (!match) {
+    if (!hasNumber) {
       setShown(raw);
       return;
     }
@@ -152,14 +161,14 @@ export function AnimatedCounter({ value, className = "" }: { value: string | num
       setShown(raw);
       return;
     }
-    if (!inView) return;
+    if (!immediate && !inView) return;
 
     const duration = 1100;
     const start = performance.now();
     let raf = 0;
 
     const step = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
+      const t = Math.max(0, Math.min(1, (now - start) / duration));
       const eased = 1 - Math.pow(1 - t, 3);
       const current = Math.round(eased * target);
       setShown(`${current}${suffix}`);
@@ -167,7 +176,7 @@ export function AnimatedCounter({ value, className = "" }: { value: string | num
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [inView, reducedMotion, raw, target, suffix, match]);
+  }, [immediate, inView, reducedMotion, raw, target, suffix, hasNumber]);
 
   return (
     <span ref={ref} className={className}>

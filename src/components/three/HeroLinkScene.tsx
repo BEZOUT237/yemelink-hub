@@ -153,10 +153,12 @@ export default function HeroLinkScene() {
   const { reducedMotion, isMobile } = useMotionPrefs();
   const { metricsRef } = useScrollMetrics();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
   const [inView, setInView] = useState(true);
   const [sceneReady, setSceneReady] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const el = containerRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
@@ -167,7 +169,7 @@ export default function HeroLinkScene() {
     return () => obs.disconnect();
   }, []);
 
-  const use2D = reducedMotion || isMobile;
+  const use2D = !mounted || reducedMotion || isMobile;
 
   return (
     <div

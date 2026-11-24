@@ -1,22 +1,29 @@
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ExternalLink, ArrowUpRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  MarqueeProjects,
+  type PortfolioProject,
+  type ProjectCategory,
+} from "@/components/portfolio/MarqueeProjects";
+import { ScrollSkewHeading, SplitReveal } from "@/components/motion/KineticText";
 
-type Project = {
-  title: string;
-  description: string;
-  url: string;
-  image: string;
-  tags: string[];
-};
-
-const PROJECTS: Project[] = [
-  { title: "YEMELINK Tech Hub", description: "Our flagship platform: services, portfolio, community, blog and AI assistant.", url: "https://yemelink.vercel.app", image: "/projects/yemelink.jpg", tags: ["React", "Vite", "Three.js", "AI"] },
-  { title: "SkillGap", description: "Smart learning platform that helps students learn right, at their own pace.", url: "https://skillgap-bheta.vercel.app", image: "/projects/skillgap.jpg", tags: ["React", "EdTech", "UI/UX"] },
-  { title: "Livora Hub", description: "Modern lifestyle & services hub with a clean, conversion-focused interface.", url: "https://livora-hub.vercel.app", image: "/projects/livora.jpg", tags: ["React", "Tailwind", "Web App"] },
-  { title: "CS Eng Portfolio — Stéphane YEMELI", description: "Personal portfolio of our founder, computer science engineer.", url: "https://stephane-yemeli.vercel.app", image: "/projects/stephane.jpg", tags: ["Portfolio", "Branding", "React"] },
-  { title: "Arkigai Group", description: "Corporate website for Arkigai Group, built for trust and clarity.", url: "https://arkigai-group.com", image: "/projects/arkigai.jpg", tags: ["Corporate", "Web Design", "SEO"] },
-  { title: "YEMELINK on YouTube", description: "Tech videos, tutorials and digital culture content from our channel.", url: "https://www.youtube.com/@YEMELINK2000", image: "/projects/youtube.jpg", tags: ["Video", "Content", "Media"] },
+const BUILTIN_PROJECTS: PortfolioProject[] = [
+  { title: "YEMELINK Tech Hub", description: "Our flagship platform: services, portfolio, community, blog and AI assistant.", url: "https://yemelink.vercel.app", image: "/projects/yemelink.jpg", tags: ["React", "Vite", "Three.js", "AI"], category: "Web" },
+  { title: "SkillGap", description: "Smart learning platform that helps students learn right, at their own pace.", url: "https://skillgap-bheta.vercel.app", image: "/projects/skillgap.jpg", tags: ["React", "EdTech", "UI/UX"], category: "Web" },
+  { title: "Livora Hub", description: "Modern lifestyle & services hub with a clean, conversion-focused interface.", url: "https://livora-hub.vercel.app", image: "/projects/livora.jpg", tags: ["React", "Tailwind", "Web App"], category: "Mobile" },
+  { title: "CS Eng Portfolio — Stéphane YEMELI", description: "Personal portfolio of our founder, computer science engineer.", url: "https://stephane-yemeli.vercel.app", image: "/projects/stephane.jpg", tags: ["Portfolio", "Branding", "React"], category: "Design" },
+  { title: "Arkigai Group", description: "Corporate website for Arkigai Group, built for trust and clarity.", url: "https://arkigai-group.com", image: "/projects/arkigai.jpg", tags: ["Corporate", "Web Design", "SEO"], category: "Design" },
+  { title: "YEMELINK on YouTube", description: "Tech videos, tutorials and digital culture content from our channel.", url: "https://www.youtube.com/@YEMELINK2000", image: "/projects/youtube.jpg", tags: ["Video", "Content", "Media"], category: "Marketing" },
 ];
+
+function inferCategory(tags: string[], category?: string | null): ProjectCategory {
+  const haystack = `${category ?? ""} ${tags.join(" ")}`.toLowerCase();
+  if (haystack.includes("mobile") || haystack.includes("android") || haystack.includes("app")) return "Mobile";
+  if (haystack.includes("design") || haystack.includes("brand") || haystack.includes("ui")) return "Design";
+  if (haystack.includes("market") || haystack.includes("video") || haystack.includes("media") || haystack.includes("seo")) return "Marketing";
+  return "Web";
+}
 
 export const Route = createFileRoute("/portfolio")({
   head: () => ({
@@ -31,56 +38,58 @@ export const Route = createFileRoute("/portfolio")({
 });
 
 function PortfolioPage() {
+  const [projects, setProjects] = useState<PortfolioProject[]>(BUILTIN_PROJECTS);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("projects")
+      .select("title, description, url, image_url, tech_stack")
+      .order("display_order", { ascending: true })
+      .then(({ data }) => {
+        if (cancelled || !data || data.length === 0) return;
+        const seen = new Set(BUILTIN_PROJECTS.map((p) => p.url.replace(/\/$/, "")));
+        const extras: PortfolioProject[] = [];
+        for (const row of data) {
+          if (!row.url || !row.image_url) continue;
+          const norm = row.url.replace(/\/$/, "");
+          if (seen.has(norm)) continue;
+          seen.add(norm);
+          const tags = Array.isArray(row.tech_stack) ? row.tech_stack : [];
+          extras.push({
+            title: row.title,
+            description: row.description ?? "",
+            url: row.url,
+            image: row.image_url,
+            tags,
+            category: inferCategory(tags, `${row.title} ${row.description ?? ""}`),
+          });
+        }
+        if (extras.length > 0) setProjects([...BUILTIN_PROJECTS, ...extras]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 md:py-20">
-      <div className="text-center mb-16 animate-fade-up">
+    <div className="py-12 md:py-20 overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 text-center mb-12">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-xs font-medium mb-6">
           <span className="text-primary">●</span> Selected work
         </div>
-        <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-4">
-          Recent <span className="text-gradient">projects</span>
-        </h1>
+        <ScrollSkewHeading>
+          <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-4">
+            <SplitReveal text="Recent" mode="words" immediate />{" "}
+            <SplitReveal text="projects" mode="words" immediate delay={0.14} itemClassName="text-gradient" />
+          </h1>
+        </ScrollSkewHeading>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Live products we've designed, built, and shipped. Click any tile to explore the real interface.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {PROJECTS.map((p, i) => (
-          <a
-            key={p.url}
-            href={p.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative glass-strong rounded-3xl overflow-hidden hover:-translate-y-2 hover:shadow-deep transition-all animate-fade-up"
-            style={{ animationDelay: `${i * 80}ms` }}
-          >
-            <div className="aspect-[16/10] relative overflow-hidden bg-card">
-              <img
-                src={p.image}
-                alt={`${p.title} interface`}
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute top-4 right-4 size-10 rounded-full glass-strong flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <ArrowUpRight className="size-5" />
-              </div>
-            </div>
-            <div className="p-6">
-              <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{p.title}</h3>
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{p.description}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {p.tags.map((t) => (
-                  <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary">{t}</span>
-                ))}
-              </div>
-              <div className="mt-4 inline-flex items-center gap-1.5 text-xs text-primary">
-                <ExternalLink className="size-3" /> Visit live site
-              </div>
-            </div>
-          </a>
-        ))}
-      </div>
+      <MarqueeProjects projects={projects} />
     </div>
   );
 }

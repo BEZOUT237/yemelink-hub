@@ -7,29 +7,23 @@ const SESSION_KEY = "yemelink_intro_seen";
 
 export function IntroLoader() {
   const { reducedMotion } = useMotionPrefs();
-  const [show, setShow] = useState(() => {
-    if (typeof window === "undefined") return false;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
-    try {
-      return !sessionStorage.getItem(SESSION_KEY);
-    } catch {
-      return false;
-    }
-  });
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (!show || reducedMotion) {
+    if (reducedMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setShow(false);
       return;
     }
     try {
+      if (sessionStorage.getItem(SESSION_KEY)) return;
       sessionStorage.setItem(SESSION_KEY, "1");
     } catch {
-      // ignore storage errors
+      return;
     }
+    setShow(true);
     const timer = window.setTimeout(() => setShow(false), 1250);
     return () => window.clearTimeout(timer);
-  }, [show, reducedMotion]);
+  }, [reducedMotion]);
 
   return (
     <AnimatePresence>
